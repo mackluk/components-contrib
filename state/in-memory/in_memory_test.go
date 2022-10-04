@@ -126,4 +126,24 @@ func TestReadAndWrite(t *testing.T) {
 		err := store.Delete(req)
 		assert.Nil(t, err)
 	})
+
+	t.Run("test", func(t *testing.T) {
+		// set with LWW
+		setReq := &state.SetRequest{
+			Key:   keyA,
+			Value: valueA,
+		}
+		err := store.Set(setReq)
+		assert.Nil(t, err)
+		// simulate expiration
+		time.Sleep(2 * time.Second)
+		// get
+		getReq := &state.GetRequest{
+			Key: keyA,
+		}
+		resp, err := store.Get(getReq)
+		assert.Nil(t, err)
+		assert.NotNil(t, resp)
+		assert.NotNil(t, resp.Data)
+	})
 }

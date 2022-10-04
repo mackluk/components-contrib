@@ -238,7 +238,7 @@ func (store *inMemoryStore) doSetValidateParameters(req *state.SetRequest) (int,
 func doParseTTLInSeconds(metadata map[string]string) (int, error) {
 	s := metadata["ttlInSeconds"]
 	if s == "" {
-		return 0, nil
+		return -1, nil
 	}
 
 	i, err := strconv.Atoi(s)
@@ -246,18 +246,21 @@ func doParseTTLInSeconds(metadata map[string]string) (int, error) {
 		return 0, err
 	}
 
-	if i < 0 {
-		i = 0
-	}
-
 	return i, nil
 }
 
 func (store *inMemoryStore) doSet(key string, data []byte, etag *string, ttlInSeconds int) {
+	var expireTime int64
+	if ttlInSeconds < 0 {
+		expireTime = -1
+	} else {
+		expireTime = time.Now().UnixMilli() + int64(ttlInSeconds)*1000
+	}
+
 	store.items[key] = &inMemStateStoreItem{
 		data:   data,
 		etag:   etag,
-		expire: time.Now().UnixMilli() + int64(ttlInSeconds)*1000,
+		expire: expireTime,
 	}
 }
 
