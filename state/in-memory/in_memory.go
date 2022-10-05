@@ -243,7 +243,7 @@ func doParseTTLInSeconds(metadata map[string]string) (int, error) {
 
 	i, err := strconv.Atoi(s)
 	if err != nil {
-		return 0, err
+		return -1, err
 	}
 
 	return i, nil
